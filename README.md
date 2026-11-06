@@ -23,6 +23,7 @@ The private BigDataFlowing website and learning center are separate products. Th
 ## What is in the first foundation
 
 - Versioned REST APIs under `/api/v1`.
+- A protected `/api/v1/auth/me` endpoint and a local HTTP Basic sign-in flow.
 - A modular-monolith server with Spring Modulith.
 - Project creation and listing as the first persisted domain slice.
 - A Vue shell for the platform workspace.
@@ -44,6 +45,8 @@ The default endpoints are:
 - UI: http://localhost:4173
 - Server health: http://localhost:8080/actuator/health
 - API smoke endpoint: http://localhost:8080/api/v1/hello
+
+The local stack uses the credentials in `.env` for the first development user. The example values are `entloom` / `change-me`; replace them before sharing or deploying an environment. The UI uses these credentials to call the protected project API through HTTP Basic during this foundation phase.
 
 Stop the stack with:
 

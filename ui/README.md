@@ -25,6 +25,8 @@ npm run dev
 
 Open the local Vite URL printed in the terminal. The current shell is a design and navigation foundation; platform data flows will be connected to the server's versioned API as they are implemented.
 
+When the server protects the API, sign in through the Entloom panel with the development credentials configured in the server environment. Credentials are kept in memory for the current browser session.
+
 ## Commands
 
 ```bash

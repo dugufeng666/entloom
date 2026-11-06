@@ -1,3 +1,5 @@
+import { authorizationHeader, type AuthCredentials } from './auth'
+
 export type ProjectStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
 
 export interface Project {
@@ -25,20 +27,24 @@ async function readJson<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export async function listProjects(): Promise<Project[]> {
+export async function listProjects(credentials?: AuthCredentials): Promise<Project[]> {
   const response = await fetch(projectsEndpoint, {
     method: 'GET',
-    headers: { Accept: 'application/json' },
+    headers: {
+      Accept: 'application/json',
+      ...(credentials ? { Authorization: authorizationHeader(credentials) } : {}),
+    },
   })
   return readJson<Project[]>(response)
 }
 
-export async function createProject(request: CreateProjectRequest): Promise<Project> {
+export async function createProject(request: CreateProjectRequest, credentials?: AuthCredentials): Promise<Project> {
   const response = await fetch(projectsEndpoint, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
+      ...(credentials ? { Authorization: authorizationHeader(credentials) } : {}),
     },
     body: JSON.stringify(request),
   })

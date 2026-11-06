@@ -1,6 +1,11 @@
 spring:
   application:
     name: entloom-server
+  security:
+    user:
+      name: ${ENTLOOM_DEV_USERNAME:entloom}
+      password: ${ENTLOOM_DEV_PASSWORD:change-me}
+      roles: ADMIN
   datasource:
     url: ${ENTLOOM_DB_URL:jdbc:postgresql://localhost:5432/entloom}
     username: ${ENTLOOM_DB_USERNAME:entloom}

@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, toRef } from 'vue'
+import type { AuthCredentials } from '../api/auth'
 import { useProjects } from '../composables/useProjects'
 
 const projectName = ref('')
 const projectDescription = ref('')
-const { projects, loading, creating, error, load, create } = useProjects()
+const props = defineProps<{
+  credentials: AuthCredentials | null
+}>()
+const { projects, loading, creating, error, load, create } = useProjects(toRef(props, 'credentials'))
 
 onMounted(load)
 

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import LoginPanel from './components/LoginPanel.vue'
 import ProjectsWorkspace from './components/ProjectsWorkspace.vue'
+import { useAuth } from './composables/useAuth'
 
 const activeModule = ref('Overview')
 const modules = ['Overview', 'Projects', 'Ontology', 'Datasets', 'Validation', 'Queries']
+const { user, credentials, loading, error, login, logout } = useAuth()
 
 const activeDescription = computed(() => {
   if (activeModule.value === 'Overview') return 'A stable foundation for enterprise ontology and agent projects.'
@@ -12,7 +15,8 @@ const activeDescription = computed(() => {
 </script>
 
 <template>
-  <div class="shell">
+  <LoginPanel v-if="!user" :loading="loading" :error="error" @submit="login" />
+  <div v-else class="shell">
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-mark">E</div>
@@ -38,7 +42,8 @@ const activeDescription = computed(() => {
 
       <div class="sidebar-footer">
         <span class="status-dot" />
-        API contract v1
+        <span>API contract v1 · {{ user?.username }}</span>
+        <button class="logout-button" type="button" @click="logout">Sign out</button>
       </div>
     </aside>
 
@@ -53,7 +58,7 @@ const activeDescription = computed(() => {
         </a>
       </header>
 
-      <ProjectsWorkspace v-if="activeModule === 'Projects'" />
+      <ProjectsWorkspace v-if="activeModule === 'Projects'" :credentials="credentials" />
 
       <template v-else>
       <section class="hero-card">

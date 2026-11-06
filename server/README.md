@@ -15,6 +15,7 @@ Entloom Server provides the API and domain services for projects, ontologies, da
 - Redis 8.2 for caching and short-lived coordination
 - Docker support through the root repository's Compose stack
 - A versioned API namespace at `/api/v1`
+- A protected `/api/v1/auth/me` endpoint for the current authenticated user
 
 The Vue client lives alongside this module in [`../ui`](../ui). The root repository owns the full local stack and contributor workflow.
 
@@ -46,6 +47,8 @@ cp .env.example .env
 ```
 
 The default local profile expects PostgreSQL on `localhost:5432` and Redis on `localhost:6379`. `application-test.yml` uses an in-memory H2 database so the test suite does not require external services.
+
+The foundation uses Spring Security HTTP Basic with `ENTLOOM_DEV_USERNAME` and `ENTLOOM_DEV_PASSWORD` for local access. This is a development bridge until the database-backed IAM module replaces it; production deployments must provide their own credentials and authentication configuration.
 
 ## Architecture direction
 

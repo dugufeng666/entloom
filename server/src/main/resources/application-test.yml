@@ -1,4 +1,9 @@
 spring:
+  security:
+    user:
+      name: test-user
+      password: test-password
+      roles: ADMIN
   datasource:
     url: jdbc:h2:mem:entloom;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa

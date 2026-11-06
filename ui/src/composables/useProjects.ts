@@ -1,4 +1,5 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
+import type { AuthCredentials } from '../api/auth'
 import {
   createProject,
   listProjects,
@@ -6,7 +7,7 @@ import {
   type Project,
 } from '../api/projects'
 
-export function useProjects() {
+export function useProjects(credentials?: Ref<AuthCredentials | null>) {
   const projects = ref<Project[]>([])
   const loading = ref(false)
   const creating = ref(false)
@@ -16,7 +17,7 @@ export function useProjects() {
     loading.value = true
     error.value = ''
     try {
-      projects.value = await listProjects()
+      projects.value = await listProjects(credentials?.value ?? undefined)
     } catch (cause) {
       error.value = cause instanceof Error ? cause.message : 'Unable to load projects'
     } finally {
@@ -28,7 +29,7 @@ export function useProjects() {
     creating.value = true
     error.value = ''
     try {
-      const project = await createProject(request)
+      const project = await createProject(request, credentials?.value ?? undefined)
       projects.value = [project, ...projects.value]
       return project
     } catch (cause) {
