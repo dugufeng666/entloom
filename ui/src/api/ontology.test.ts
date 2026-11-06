@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createOntology, createOntologyClass, listOntologies, releaseOntology } from './ontology'
+import { createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology } from './ontology'
 
 describe('ontology API client', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -21,5 +21,20 @@ describe('ontology API client', () => {
 
     await expect(listOntologies('p-1')).resolves.toHaveLength(1)
     await expect(releaseOntology('p-1', 'o-1', '0.1.0')).resolves.toMatchObject({ version: '0.1.0' })
+  })
+
+  it('covers properties, relations and release history endpoints', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'prop-1', valueType: 'TEXT', required: true }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'rel-1', cardinality: 'ONE_TO_MANY' }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ id: 'prop-1', valueType: 'TEXT', required: true }]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ id: 'rel-1', cardinality: 'ONE_TO_MANY' }]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ id: 'r-1', version: '0.1.0', classCount: 2, propertyCount: 1, relationCount: 1 }]), { status: 200 })))
+
+    await expect(createOntologyProperty('p-1', 'o-1', 'c-1', { name: 'email', description: '', valueType: 'TEXT', required: true })).resolves.toMatchObject({ id: 'prop-1' })
+    await expect(createOntologyRelation('p-1', 'o-1', { name: 'owns', description: '', sourceClassId: 'c-1', targetClassId: 'c-2', cardinality: 'ONE_TO_MANY' })).resolves.toMatchObject({ id: 'rel-1' })
+    await expect(listOntologyProperties('p-1', 'o-1', 'c-1')).resolves.toHaveLength(1)
+    await expect(listOntologyRelations('p-1', 'o-1')).resolves.toHaveLength(1)
+    await expect(listOntologyReleases('p-1', 'o-1')).resolves.toHaveLength(1)
   })
 })
