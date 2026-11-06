@@ -70,6 +70,13 @@ public class OntologyPropertyService {
         return OntologyPropertyResponse.from(property);
     }
 
+    @Transactional
+    public void delete(UUID projectId, UUID ontologyId, UUID classId, UUID id) {
+        requireDraftContext(projectId, ontologyId, classId, true);
+        propertyRepository.delete(requireProperty(classId, id));
+        propertyRepository.flush();
+    }
+
     private Ontology requireDraftContext(UUID projectId, UUID ontologyId, UUID classId, boolean draftRequired) {
         Ontology ontology = ontologyRepository.findByIdAndProjectId(ontologyId, projectId)
                 .orElseThrow(() -> new OntologyNotFoundException(ontologyId));

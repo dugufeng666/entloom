@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology } from './ontology'
+import { changeOntologyStatus, compareOntologyReleases, createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, deleteOntologyClass, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology } from './ontology'
 
 describe('ontology API client', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -36,5 +36,16 @@ describe('ontology API client', () => {
     await expect(listOntologyProperties('p-1', 'o-1', 'c-1')).resolves.toHaveLength(1)
     await expect(listOntologyRelations('p-1', 'o-1')).resolves.toHaveLength(1)
     await expect(listOntologyReleases('p-1', 'o-1')).resolves.toHaveLength(1)
+  })
+
+  it('compares releases and supports draft deletion requests', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ fromVersion: '1.0.0', toVersion: '2.0.0', changes: [{ itemId: 'c-1', changeType: 'MODIFIED', kind: 'CLASS', name: 'Customer' }] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'o-1', status: 'DRAFT' }), { status: 200 })))
+
+    await expect(compareOntologyReleases('p-1', 'o-1', 'r-1', 'r-2')).resolves.toMatchObject({ fromVersion: '1.0.0' })
+    await expect(deleteOntologyClass('p-1', 'o-1', 'c-1')).resolves.toBeUndefined()
+    await expect(changeOntologyStatus('p-1', 'o-1', 'DRAFT')).resolves.toMatchObject({ status: 'DRAFT' })
   })
 })

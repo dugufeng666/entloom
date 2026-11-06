@@ -1,6 +1,7 @@
 package io.entloom.server.ontology;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -86,5 +87,48 @@ class OntologyReleaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"version\":\"v1\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "version-manager")
+    void comparesConcreteChangesBetweenReleaseSnapshots() throws Exception {
+        Project project = projectRepository.saveAndFlush(Project.create("Versioned model", null));
+        Ontology ontology = ontologyRepository.saveAndFlush(Ontology.create(project.getId(), "Versioned ontology", null));
+        OntologyClass customer = ontologyClassRepository.saveAndFlush(OntologyClass.create(ontology.getId(), "Customer", "v1"));
+
+        mockMvc.perform(post("/api/v1/projects/{projectId}/ontologies/{ontologyId}/releases", project.getId(), ontology.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"version\":\"1.0.0\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/api/v1/projects/{projectId}/ontologies/{ontologyId}/status", project.getId(), ontology.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"DRAFT\"}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(patch("/api/v1/projects/{projectId}/ontologies/{ontologyId}/classes/{id}", project.getId(), ontology.getId(), customer.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Customer\",\"description\":\"v2\"}"))
+                .andExpect(status().isOk());
+        OntologyClass account = ontologyClassRepository.saveAndFlush(OntologyClass.create(ontology.getId(), "Account", null));
+
+        String secondRelease = mockMvc.perform(post("/api/v1/projects/{projectId}/ontologies/{ontologyId}/releases", project.getId(), ontology.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"version\":\"2.0.0\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String releases = mockMvc.perform(get("/api/v1/projects/{projectId}/ontologies/{ontologyId}/releases", project.getId(), ontology.getId()))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        com.fasterxml.jackson.databind.JsonNode releaseArray = new com.fasterxml.jackson.databind.ObjectMapper().readTree(releases);
+        String firstId = releaseArray.get(1).get("id").asText();
+        String secondId = releaseArray.get(0).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/ontologies/{ontologyId}/releases/diff", project.getId(), ontology.getId())
+                        .param("from", firstId).param("to", secondId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fromVersion").value("1.0.0"))
+                .andExpect(jsonPath("$.toVersion").value("2.0.0"))
+                .andExpect(jsonPath("$.changes[?(@.changeType == 'MODIFIED')].name").value(org.hamcrest.Matchers.hasItem("Customer")))
+                .andExpect(jsonPath("$.changes[?(@.changeType == 'ADDED')].name").value(org.hamcrest.Matchers.hasItem("Account")));
     }
 }

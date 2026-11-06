@@ -68,7 +68,7 @@ public class Ontology {
         }
         boolean allowed = status == OntologyStatus.DRAFT
                 && (requested == OntologyStatus.RELEASED || requested == OntologyStatus.ARCHIVED)
-                || status == OntologyStatus.RELEASED && requested == OntologyStatus.ARCHIVED;
+                || status == OntologyStatus.RELEASED && (requested == OntologyStatus.ARCHIVED || requested == OntologyStatus.DRAFT);
         if (!allowed) {
             throw new OntologyLifecycleException(status, requested);
         }

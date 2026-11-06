@@ -73,6 +73,13 @@ public class OntologyRelationService {
         return OntologyRelationResponse.from(relation);
     }
 
+    @Transactional
+    public void delete(UUID projectId, UUID ontologyId, UUID id) {
+        requireDraftOntology(projectId, ontologyId);
+        relationRepository.delete(requireRelation(ontologyId, id));
+        relationRepository.flush();
+    }
+
     private Ontology requireDraftOntology(UUID projectId, UUID ontologyId) {
         Ontology ontology = requireOntology(projectId, ontologyId);
         ontology.ensureDraft();

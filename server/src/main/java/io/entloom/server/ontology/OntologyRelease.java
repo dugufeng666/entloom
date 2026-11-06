@@ -46,6 +46,9 @@ public class OntologyRelease {
     @Column(name = "relation_count", nullable = false)
     private long relationCount;
 
+    @Column(name = "manifest_json", nullable = false, columnDefinition = "TEXT")
+    private String manifestJson;
+
     protected OntologyRelease() {
     }
 
@@ -56,7 +59,8 @@ public class OntologyRelease {
             String releasedBy,
             long classCount,
             long propertyCount,
-            long relationCount) {
+            long relationCount,
+            String manifestJson) {
         OntologyRelease release = new OntologyRelease();
         release.ontologyId = ontologyId;
         release.version = version;
@@ -65,6 +69,7 @@ public class OntologyRelease {
         release.classCount = classCount;
         release.propertyCount = propertyCount;
         release.relationCount = relationCount;
+        release.manifestJson = manifestJson;
         return release;
     }
 
@@ -107,5 +112,9 @@ public class OntologyRelease {
 
     public long getRelationCount() {
         return relationCount;
+    }
+
+    public String getManifestJson() {
+        return manifestJson;
     }
 }

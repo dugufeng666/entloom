@@ -60,6 +60,14 @@ public class OntologyClassService {
         return OntologyClassResponse.from(ontologyClass);
     }
 
+    @Transactional
+    public void delete(UUID projectId, UUID ontologyId, UUID id) {
+        Ontology ontology = requireOntology(projectId, ontologyId);
+        ontology.ensureDraft();
+        ontologyClassRepository.delete(requireClass(ontologyId, id));
+        ontologyClassRepository.flush();
+    }
+
     private Ontology requireOntology(UUID projectId, UUID ontologyId) {
         return ontologyRepository.findByIdAndProjectId(ontologyId, projectId)
                 .orElseThrow(() -> new OntologyNotFoundException(ontologyId));

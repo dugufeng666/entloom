@@ -8,6 +8,9 @@ export type OntologyRelationCardinality = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'MANY_T
 export interface OntologyProperty { id: string; ontologyId: string; classId: string; name: string; description?: string | null; valueType: OntologyPropertyValueType; required: boolean }
 export interface OntologyRelation { id: string; ontologyId: string; sourceClassId: string; targetClassId: string; name: string; description?: string | null; cardinality: OntologyRelationCardinality }
 export interface OntologyRelease { id: string; ontologyId: string; version: string; notes?: string | null; releasedBy?: string; releasedAt?: string; classCount: number; propertyCount: number; relationCount: number }
+export type OntologyChangeType = 'ADDED' | 'MODIFIED' | 'DELETED'
+export interface OntologyReleaseChange { kind: 'CLASS' | 'PROPERTY' | 'RELATION'; changeType: OntologyChangeType; itemId: string; name: string; before?: unknown; after?: unknown }
+export interface OntologyReleaseDiff { fromReleaseId: string; fromVersion: string; toReleaseId: string; toVersion: string; changes: OntologyReleaseChange[] }
 
 const apiOrigin = (import.meta.env.VITE_ENTLOOM_API_BASE_URL ?? '').replace(/\/$/, '')
 const endpoint = (projectId: string) => `${apiOrigin}/api/v1/projects/${projectId}/ontologies`
@@ -15,6 +18,11 @@ const endpoint = (projectId: string) => `${apiOrigin}/api/v1/projects/${projectI
 async function readJson<T>(response: Response): Promise<T> {
   if (!response.ok) throw new Error((await response.text()) || `Entloom API request failed with status ${response.status}`)
   return response.json() as Promise<T>
+}
+
+async function deleteResource(url: string, credentials?: AuthCredentials) {
+  const response = await fetch(url, { method: 'DELETE', headers: { Accept: 'application/json', ...authHeaders(credentials) } })
+  if (!response.ok) throw new Error((await response.text()) || `Entloom API request failed with status ${response.status}`)
 }
 
 function authHeaders(credentials?: AuthCredentials): Record<string, string> {
@@ -37,6 +45,12 @@ export async function createOntologyClass(projectId: string, ontologyId: string,
   return readJson<OntologyClass>(await fetch(`${endpoint(projectId)}/${ontologyId}/classes`, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify({ name, description }) }))
 }
 
+export async function changeOntologyStatus(projectId: string, ontologyId: string, status: OntologyStatus, credentials?: AuthCredentials) {
+  return readJson<Ontology>(await fetch(`${endpoint(projectId)}/${ontologyId}/status`, { method: 'PATCH', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify({ status }) }))
+}
+
+export async function deleteOntologyClass(projectId: string, ontologyId: string, classId: string, credentials?: AuthCredentials) { return deleteResource(`${endpoint(projectId)}/${ontologyId}/classes/${classId}`, credentials) }
+
 export async function listOntologyProperties(projectId: string, ontologyId: string, classId: string, credentials?: AuthCredentials) {
   return readJson<OntologyProperty[]>(await fetch(`${endpoint(projectId)}/${ontologyId}/classes/${classId}/properties`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
 }
@@ -44,6 +58,8 @@ export async function listOntologyProperties(projectId: string, ontologyId: stri
 export async function createOntologyProperty(projectId: string, ontologyId: string, classId: string, input: Pick<OntologyProperty, 'name' | 'description' | 'valueType' | 'required'>, credentials?: AuthCredentials) {
   return readJson<OntologyProperty>(await fetch(`${endpoint(projectId)}/${ontologyId}/classes/${classId}/properties`, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify(input) }))
 }
+
+export async function deleteOntologyProperty(projectId: string, ontologyId: string, classId: string, propertyId: string, credentials?: AuthCredentials) { return deleteResource(`${endpoint(projectId)}/${ontologyId}/classes/${classId}/properties/${propertyId}`, credentials) }
 
 export async function listOntologyRelations(projectId: string, ontologyId: string, credentials?: AuthCredentials) {
   return readJson<OntologyRelation[]>(await fetch(`${endpoint(projectId)}/${ontologyId}/relations`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
@@ -53,8 +69,15 @@ export async function createOntologyRelation(projectId: string, ontologyId: stri
   return readJson<OntologyRelation>(await fetch(`${endpoint(projectId)}/${ontologyId}/relations`, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify(input) }))
 }
 
+export async function deleteOntologyRelation(projectId: string, ontologyId: string, relationId: string, credentials?: AuthCredentials) { return deleteResource(`${endpoint(projectId)}/${ontologyId}/relations/${relationId}`, credentials) }
+
 export async function listOntologyReleases(projectId: string, ontologyId: string, credentials?: AuthCredentials) {
   return readJson<OntologyRelease[]>(await fetch(`${endpoint(projectId)}/${ontologyId}/releases`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
+}
+
+export async function compareOntologyReleases(projectId: string, ontologyId: string, from: string, to: string, credentials?: AuthCredentials) {
+  const query = new URLSearchParams({ from, to })
+  return readJson<OntologyReleaseDiff>(await fetch(`${endpoint(projectId)}/${ontologyId}/releases/diff?${query}`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
 }
 
 export async function releaseOntology(projectId: string, ontologyId: string, version: string, credentials?: AuthCredentials, notes?: string) {

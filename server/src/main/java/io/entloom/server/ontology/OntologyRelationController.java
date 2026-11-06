@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,5 +57,11 @@ public class OntologyRelationController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateOntologyRelationRequest request) {
         return relationService.update(projectId, ontologyId, id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable UUID projectId, @PathVariable UUID ontologyId, @PathVariable UUID id) {
+        relationService.delete(projectId, ontologyId, id);
     }
 }
