@@ -9,7 +9,7 @@ export interface OntologyProperty { id: string; ontologyId: string; classId: str
 export interface OntologyRelation { id: string; ontologyId: string; sourceClassId: string; targetClassId: string; name: string; description?: string | null; cardinality: OntologyRelationCardinality }
 export interface OntologyRelease { id: string; ontologyId: string; version: string; notes?: string | null; releasedBy?: string; releasedAt?: string; classCount: number; propertyCount: number; relationCount: number }
 export type OntologyChangeType = 'ADDED' | 'MODIFIED' | 'DELETED'
-export interface OntologyReleaseChange { kind: 'CLASS' | 'PROPERTY' | 'RELATION'; changeType: OntologyChangeType; itemId: string; name: string; before?: unknown; after?: unknown }
+export interface OntologyReleaseChange { kind: 'CLASS' | 'PROPERTY' | 'RELATION'; changeType: OntologyChangeType; itemId: string; name: string; location: string; before?: unknown; after?: unknown }
 export interface OntologyReleaseDiff { fromReleaseId: string; fromVersion: string; toReleaseId: string; toVersion: string; changes: OntologyReleaseChange[] }
 
 const apiOrigin = (import.meta.env.VITE_ENTLOOM_API_BASE_URL ?? '').replace(/\/$/, '')

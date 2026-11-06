@@ -2,7 +2,6 @@ package io.entloom.server.ontology;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -118,35 +117,38 @@ public class OntologyReleaseService {
 
     private List<OntologyReleaseDiffResponse.OntologyReleaseChange> compare(OntologyReleaseManifest from, OntologyReleaseManifest to) {
         List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes = new ArrayList<>();
+        Map<UUID, String> classNames = new java.util.HashMap<>();
+        from.classes().forEach(item -> classNames.put(item.id(), item.name()));
+        to.classes().forEach(item -> classNames.put(item.id(), item.name()));
         compareClasses(from.classes(), to.classes(), changes);
-        compareProperties(from.properties(), to.properties(), changes);
-        compareRelations(from.relations(), to.relations(), changes);
+        compareProperties(from.properties(), to.properties(), classNames, changes);
+        compareRelations(from.relations(), to.relations(), classNames, changes);
         return changes;
     }
 
     private void compareClasses(List<OntologyReleaseManifest.ClassSnapshot> from, List<OntologyReleaseManifest.ClassSnapshot> to, List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes) {
         Map<UUID, OntologyReleaseManifest.ClassSnapshot> before = from.stream().collect(java.util.stream.Collectors.toMap(OntologyReleaseManifest.ClassSnapshot::id, item -> item));
         Map<UUID, OntologyReleaseManifest.ClassSnapshot> after = to.stream().collect(java.util.stream.Collectors.toMap(OntologyReleaseManifest.ClassSnapshot::id, item -> item));
-        compareMap("CLASS", before, after, OntologyReleaseManifest.ClassSnapshot::id, OntologyReleaseManifest.ClassSnapshot::name, changes);
+        compareMap("CLASS", before, after, OntologyReleaseManifest.ClassSnapshot::id, OntologyReleaseManifest.ClassSnapshot::name, item -> "Class / " + item.name(), changes);
     }
 
-    private void compareProperties(List<OntologyReleaseManifest.PropertySnapshot> from, List<OntologyReleaseManifest.PropertySnapshot> to, List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes) {
+    private void compareProperties(List<OntologyReleaseManifest.PropertySnapshot> from, List<OntologyReleaseManifest.PropertySnapshot> to, Map<UUID, String> classNames, List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes) {
         Map<UUID, OntologyReleaseManifest.PropertySnapshot> before = from.stream().collect(java.util.stream.Collectors.toMap(OntologyReleaseManifest.PropertySnapshot::id, item -> item));
         Map<UUID, OntologyReleaseManifest.PropertySnapshot> after = to.stream().collect(java.util.stream.Collectors.toMap(OntologyReleaseManifest.PropertySnapshot::id, item -> item));
-        compareMap("PROPERTY", before, after, OntologyReleaseManifest.PropertySnapshot::id, OntologyReleaseManifest.PropertySnapshot::name, changes);
+        compareMap("PROPERTY", before, after, OntologyReleaseManifest.PropertySnapshot::id, OntologyReleaseManifest.PropertySnapshot::name, item -> "Property / " + classNames.getOrDefault(item.classId(), "Unknown class") + " / " + item.name(), changes);
     }
 
-    private void compareRelations(List<OntologyReleaseManifest.RelationSnapshot> from, List<OntologyReleaseManifest.RelationSnapshot> to, List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes) {
+    private void compareRelations(List<OntologyReleaseManifest.RelationSnapshot> from, List<OntologyReleaseManifest.RelationSnapshot> to, Map<UUID, String> classNames, List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes) {
         Map<UUID, OntologyReleaseManifest.RelationSnapshot> before = from.stream().collect(java.util.stream.Collectors.toMap(OntologyReleaseManifest.RelationSnapshot::id, item -> item));
         Map<UUID, OntologyReleaseManifest.RelationSnapshot> after = to.stream().collect(java.util.stream.Collectors.toMap(OntologyReleaseManifest.RelationSnapshot::id, item -> item));
-        compareMap("RELATION", before, after, OntologyReleaseManifest.RelationSnapshot::id, OntologyReleaseManifest.RelationSnapshot::name, changes);
+        compareMap("RELATION", before, after, OntologyReleaseManifest.RelationSnapshot::id, OntologyReleaseManifest.RelationSnapshot::name, item -> "Relation / " + classNames.getOrDefault(item.sourceClassId(), "Unknown class") + " → " + classNames.getOrDefault(item.targetClassId(), "Unknown class") + " / " + item.name(), changes);
     }
 
-    private <T> void compareMap(String kind, Map<UUID, T> before, Map<UUID, T> after, java.util.function.Function<T, UUID> id, java.util.function.Function<T, String> name, List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes) {
+    private <T> void compareMap(String kind, Map<UUID, T> before, Map<UUID, T> after, java.util.function.Function<T, UUID> id, java.util.function.Function<T, String> name, java.util.function.Function<T, String> location, List<OntologyReleaseDiffResponse.OntologyReleaseChange> changes) {
         before.forEach((itemId, item) -> {
-            if (!after.containsKey(itemId)) changes.add(new OntologyReleaseDiffResponse.OntologyReleaseChange(kind, "DELETED", itemId, name.apply(item), item, null));
-            else if (!Objects.equals(item, after.get(itemId))) changes.add(new OntologyReleaseDiffResponse.OntologyReleaseChange(kind, "MODIFIED", itemId, name.apply(after.get(itemId)), item, after.get(itemId)));
+            if (!after.containsKey(itemId)) changes.add(new OntologyReleaseDiffResponse.OntologyReleaseChange(kind, "DELETED", itemId, name.apply(item), location.apply(item), item, null));
+            else if (!Objects.equals(item, after.get(itemId))) changes.add(new OntologyReleaseDiffResponse.OntologyReleaseChange(kind, "MODIFIED", itemId, name.apply(after.get(itemId)), location.apply(after.get(itemId)), item, after.get(itemId)));
         });
-        after.forEach((itemId, item) -> { if (!before.containsKey(itemId)) changes.add(new OntologyReleaseDiffResponse.OntologyReleaseChange(kind, "ADDED", itemId, name.apply(item), null, item)); });
+        after.forEach((itemId, item) -> { if (!before.containsKey(itemId)) changes.add(new OntologyReleaseDiffResponse.OntologyReleaseChange(kind, "ADDED", itemId, name.apply(item), location.apply(item), null, item)); });
     }
 }

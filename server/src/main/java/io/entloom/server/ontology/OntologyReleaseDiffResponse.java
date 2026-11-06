@@ -15,6 +15,7 @@ public record OntologyReleaseDiffResponse(
             String changeType,
             UUID itemId,
             String name,
+            String location,
             Object before,
             Object after) {
     }

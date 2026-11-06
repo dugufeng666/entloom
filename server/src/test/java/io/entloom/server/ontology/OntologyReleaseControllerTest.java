@@ -128,6 +128,9 @@ class OntologyReleaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.fromVersion").value("1.0.0"))
                 .andExpect(jsonPath("$.toVersion").value("2.0.0"))
+                .andExpect(jsonPath("$.changes[?(@.changeType == 'MODIFIED')].location").value(org.hamcrest.Matchers.hasItem("Class / Customer")))
+                .andExpect(jsonPath("$.changes[0].before.description").value("v1"))
+                .andExpect(jsonPath("$.changes[0].after.description").value("v2"))
                 .andExpect(jsonPath("$.changes[?(@.changeType == 'MODIFIED')].name").value(org.hamcrest.Matchers.hasItem("Customer")))
                 .andExpect(jsonPath("$.changes[?(@.changeType == 'ADDED')].name").value(org.hamcrest.Matchers.hasItem("Account")));
     }
