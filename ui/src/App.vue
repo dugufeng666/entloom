@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import LoginPanel from './components/LoginPanel.vue'
 import ProjectsWorkspace from './components/ProjectsWorkspace.vue'
+import OntologyWorkspace from './components/OntologyWorkspace.vue'
 import { useAuth } from './composables/useAuth'
 
 const activeModule = ref('Overview')
@@ -59,6 +60,7 @@ const activeDescription = computed(() => {
       </header>
 
       <ProjectsWorkspace v-if="activeModule === 'Projects'" :credentials="credentials" />
+      <OntologyWorkspace v-else-if="activeModule === 'Ontology'" :credentials="credentials" />
 
       <template v-else>
       <section class="hero-card">
