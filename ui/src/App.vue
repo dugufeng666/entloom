@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import ProjectsWorkspace from './components/ProjectsWorkspace.vue'
 
 const activeModule = ref('Overview')
 const modules = ['Overview', 'Projects', 'Ontology', 'Datasets', 'Validation', 'Queries']
@@ -52,6 +53,9 @@ const activeDescription = computed(() => {
         </a>
       </header>
 
+      <ProjectsWorkspace v-if="activeModule === 'Projects'" />
+
+      <template v-else>
       <section class="hero-card">
         <div>
           <span class="pill">Public foundation · v0.1</span>
@@ -90,6 +94,7 @@ const activeDescription = computed(() => {
           <span class="metric-note">Issues and pull requests welcome.</span>
         </article>
       </section>
+      </template>
     </main>
   </div>
 </template>
