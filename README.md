@@ -29,6 +29,7 @@ The private BigDataFlowing website and learning center are separate products. Th
 - A project-scoped ontology API with draft, released and archived states.
 - Draft-only ontology class definitions with read-only released snapshots.
 - Class properties with text, number, boolean, date and reference value types.
+- Class-to-class relations with explicit cardinality.
 - A Vue shell for the platform workspace.
 - PostgreSQL for durable state and Redis for coordination and caching.
 - Docker Compose for local development.

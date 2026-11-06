@@ -11,3 +11,4 @@
 - Added the first project-scoped ontology API and draft/released/archived lifecycle migration.
 - Added draft-only ontology class definitions with read-only released snapshots.
 - Added typed ontology class properties with draft-only mutation rules.
+- Added ontology class-to-class relations with explicit cardinality and draft-only mutation rules.

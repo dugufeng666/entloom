@@ -11,11 +11,12 @@
 - [x] Project-scoped ontology resource and draft/released/archived lifecycle foundation
 - [x] Draft-only ontology class definitions
 - [x] Draft-only ontology class properties with typed values
+- [x] Draft-only ontology class-to-class relations with cardinality
 
 ## Next domain slices
 
 - [ ] Identity, organizations and tenant boundaries
-- [ ] Ontology properties, relations and semantic versioned release manifests
+- [ ] Semantic versioned release manifests
 - [ ] OpenAPI generation and typed UI client
 - [ ] Import/export and validation jobs
 - [ ] Evidence, audit and policy-aware agent tools
