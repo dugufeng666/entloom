@@ -12,3 +12,4 @@
 - Added draft-only ontology class definitions with read-only released snapshots.
 - Added typed ontology class properties with draft-only mutation rules.
 - Added ontology class-to-class relations with explicit cardinality and draft-only mutation rules.
+- Added semantic release manifests with release identity, actor and model counts.

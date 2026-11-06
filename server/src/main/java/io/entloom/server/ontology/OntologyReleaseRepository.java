@@ -1,0 +1,13 @@
+package io.entloom.server.ontology;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OntologyReleaseRepository extends JpaRepository<OntologyRelease, UUID> {
+
+    List<OntologyRelease> findAllByOntologyIdOrderByReleasedAtDesc(UUID ontologyId);
+
+    boolean existsByOntologyIdAndVersion(UUID ontologyId, String version);
+}

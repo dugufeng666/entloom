@@ -10,5 +10,7 @@ public interface OntologyPropertyRepository extends JpaRepository<OntologyProper
 
     List<OntologyProperty> findAllByClassIdOrderByUpdatedAtDesc(UUID classId);
 
+    long countByOntologyId(UUID ontologyId);
+
     Optional<OntologyProperty> findByIdAndClassId(UUID id, UUID classId);
 }

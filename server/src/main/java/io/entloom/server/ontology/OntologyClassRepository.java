@@ -10,5 +10,7 @@ public interface OntologyClassRepository extends JpaRepository<OntologyClass, UU
 
     List<OntologyClass> findAllByOntologyIdOrderByUpdatedAtDesc(UUID ontologyId);
 
+    long countByOntologyId(UUID ontologyId);
+
     Optional<OntologyClass> findByIdAndOntologyId(UUID id, UUID ontologyId);
 }

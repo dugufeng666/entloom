@@ -12,11 +12,12 @@
 - [x] Draft-only ontology class definitions
 - [x] Draft-only ontology class properties with typed values
 - [x] Draft-only ontology class-to-class relations with cardinality
+- [x] Semantic versioned release manifest foundation
 
 ## Next domain slices
 
 - [ ] Identity, organizations and tenant boundaries
-- [ ] Semantic versioned release manifests
+- [ ] Draft forks and release diff workflows
 - [ ] OpenAPI generation and typed UI client
 - [ ] Import/export and validation jobs
 - [ ] Evidence, audit and policy-aware agent tools

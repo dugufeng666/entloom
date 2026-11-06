@@ -10,5 +10,7 @@ public interface OntologyRelationRepository extends JpaRepository<OntologyRelati
 
     List<OntologyRelation> findAllByOntologyIdOrderByUpdatedAtDesc(UUID ontologyId);
 
+    long countByOntologyId(UUID ontologyId);
+
     Optional<OntologyRelation> findByIdAndOntologyId(UUID id, UUID ontologyId);
 }
