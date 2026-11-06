@@ -13,14 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
           cache: maven
           cache-dependency-path: server/pom.xml
-      - run: chmod +x server/mvnw
-      - run: server/./mvnw -B test
+      - run: chmod +x mvnw
+        working-directory: server
+      - run: ./mvnw -B -ntp --errors test
+        working-directory: server
 
   ui-check:
     runs-on: ubuntu-latest
