@@ -9,11 +9,12 @@
 - [x] Database-backed local users, roles and BCrypt password storage
 - [x] Project detail, editing and forward-only lifecycle actions
 - [x] Project-scoped ontology resource and draft/released/archived lifecycle foundation
+- [x] Draft-only ontology class definitions
 
 ## Next domain slices
 
 - [ ] Identity, organizations and tenant boundaries
-- [ ] Ontology classes, properties, relations and semantic versioned releases
+- [ ] Ontology properties, relations and semantic versioned release manifests
 - [ ] OpenAPI generation and typed UI client
 - [ ] Import/export and validation jobs
 - [ ] Evidence, audit and policy-aware agent tools

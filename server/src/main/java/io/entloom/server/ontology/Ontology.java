@@ -75,6 +75,12 @@ public class Ontology {
         status = requested;
     }
 
+    public void ensureDraft() {
+        if (status != OntologyStatus.DRAFT) {
+            throw new OntologyReadOnlyException(status);
+        }
+    }
+
     @PrePersist
     void onCreate() {
         Instant now = Instant.now();

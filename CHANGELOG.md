@@ -9,3 +9,4 @@
 - Added database-backed local users, roles and BCrypt password storage.
 - Added project detail, editing and forward-only draft/active/archived lifecycle actions.
 - Added the first project-scoped ontology API and draft/released/archived lifecycle migration.
+- Added draft-only ontology class definitions with read-only released snapshots.
