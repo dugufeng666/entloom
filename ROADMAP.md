@@ -8,11 +8,12 @@
 - [x] Versioned health and project APIs
 - [x] Database-backed local users, roles and BCrypt password storage
 - [x] Project detail, editing and forward-only lifecycle actions
+- [x] Project-scoped ontology resource and draft/released/archived lifecycle foundation
 
 ## Next domain slices
 
 - [ ] Identity, organizations and tenant boundaries
-- [ ] Ontology entities, drafts and versioned releases
+- [ ] Ontology classes, properties, relations and semantic versioned releases
 - [ ] OpenAPI generation and typed UI client
 - [ ] Import/export and validation jobs
 - [ ] Evidence, audit and policy-aware agent tools
