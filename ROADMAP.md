@@ -10,6 +10,7 @@
 - [x] Project detail, editing and forward-only lifecycle actions
 - [x] Project-scoped ontology resource and draft/released/archived lifecycle foundation
 - [x] Draft-only ontology class definitions
+- [x] Draft-only ontology class properties with typed values
 
 ## Next domain slices
 
