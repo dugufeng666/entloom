@@ -8,7 +8,8 @@ const projectDescription = ref('')
 const props = defineProps<{
   credentials: AuthCredentials | null
 }>()
-const { projects, loading, creating, error, load, create } = useProjects(toRef(props, 'credentials'))
+const { projects, loading, creating, error, load, create, changeStatus } = useProjects(toRef(props, 'credentials'))
+const transitioningProjectId = ref('')
 
 onMounted(load)
 
@@ -27,6 +28,15 @@ async function submit() {
     projectName.value = ''
     projectDescription.value = ''
   }
+}
+
+async function transitionProject(id: string, status: 'ACTIVE' | 'ARCHIVED') {
+  if (transitioningProjectId.value) {
+    return
+  }
+  transitioningProjectId.value = id
+  await changeStatus(id, status)
+  transitioningProjectId.value = ''
 }
 </script>
 
@@ -80,7 +90,27 @@ async function submit() {
               <strong>{{ project.name }}</strong>
               <span>{{ project.description || 'No description yet.' }}</span>
             </div>
-            <span class="status-badge" :data-status="project.status">{{ project.status }}</span>
+            <div class="project-actions">
+              <span class="status-badge" :data-status="project.status">{{ project.status }}</span>
+              <button
+                v-if="project.status === 'DRAFT'"
+                class="status-action"
+                type="button"
+                :disabled="transitioningProjectId === project.id"
+                @click="transitionProject(project.id, 'ACTIVE')"
+              >
+                Activate
+              </button>
+              <button
+                v-else-if="project.status === 'ACTIVE'"
+                class="status-action"
+                type="button"
+                :disabled="transitioningProjectId === project.id"
+                @click="transitionProject(project.id, 'ARCHIVED')"
+              >
+                Archive
+              </button>
+            </div>
           </li>
         </ul>
       </div>

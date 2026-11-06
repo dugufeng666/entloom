@@ -25,7 +25,7 @@ The private BigDataFlowing website and learning center are separate products. Th
 - Versioned REST APIs under `/api/v1`.
 - A protected `/api/v1/auth/me` endpoint backed by database users and roles, with a local HTTP Basic sign-in flow.
 - A modular-monolith server with Spring Modulith.
-- Project creation and listing as the first persisted domain slice.
+- Project creation, detail editing and lifecycle actions as the first persisted domain slice.
 - A Vue shell for the platform workspace.
 - PostgreSQL for durable state and Redis for coordination and caching.
 - Docker Compose for local development.

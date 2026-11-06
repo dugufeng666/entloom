@@ -53,6 +53,24 @@ public class Project {
         return project;
     }
 
+    public void updateDetails(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public void changeStatus(ProjectStatus requested) {
+        if (requested == status) {
+            return;
+        }
+        boolean allowed = status == ProjectStatus.DRAFT
+                && (requested == ProjectStatus.ACTIVE || requested == ProjectStatus.ARCHIVED)
+                || status == ProjectStatus.ACTIVE && requested == ProjectStatus.ARCHIVED;
+        if (!allowed) {
+            throw new ProjectLifecycleException(status, requested);
+        }
+        status = requested;
+    }
+
     @PrePersist
     void onCreate() {
         Instant now = Instant.now();
