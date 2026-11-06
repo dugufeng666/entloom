@@ -42,13 +42,14 @@ Use Java 25 and the Maven wrapper:
 
 ```bash
 cp .env.example .env
+set -a; source .env; set +a
 ./mvnw test
 ./mvnw spring-boot:run
 ```
 
 The default local profile expects PostgreSQL on `localhost:5432` and Redis on `localhost:6379`. `application-test.yml` uses an in-memory H2 database so the test suite does not require external services.
 
-The foundation uses Spring Security HTTP Basic with `ENTLOOM_DEV_USERNAME` and `ENTLOOM_DEV_PASSWORD` for local access. This is a development bridge until the database-backed IAM module replaces it; production deployments must provide their own credentials and authentication configuration.
+The local profile seeds a database user in `users` and `user_roles` from `ENTLOOM_DEV_USERNAME` and `ENTLOOM_DEV_PASSWORD`, storing the password with BCrypt. Spring Security uses that user for the current HTTP Basic development flow. Session, organization and tenant IAM are still planned; production deployments must provide their own credentials and authentication configuration.
 
 ## Architecture direction
 

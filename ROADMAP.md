@@ -6,6 +6,7 @@
 - [x] Java 25 and Spring Boot 4.1.2 server foundation
 - [x] Vue 3 and Vite 8 UI foundation
 - [x] Versioned health and project APIs
+- [x] Database-backed local users, roles and BCrypt password storage
 
 ## Next domain slices
 

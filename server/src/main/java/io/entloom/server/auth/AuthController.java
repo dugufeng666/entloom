@@ -15,6 +15,7 @@ public class AuthController {
     public CurrentUserResponse currentUser(Authentication authentication) {
         List<String> roles = authentication.getAuthorities().stream()
                 .map(authority -> authority.getAuthority())
+                .filter(authority -> authority.startsWith("ROLE_"))
                 .sorted()
                 .toList();
         return new CurrentUserResponse(authentication.getName(), roles);
