@@ -68,3 +68,18 @@ jobs:
           java-version: '17'
       - run: ./scripts/generate-clients.sh
       - run: git diff --exit-code -- clients
+
+  openapi-runtime-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: server/pom.xml
+      - run: chmod +x mvnw
+        working-directory: server
+      - run: chmod +x scripts/check-runtime-openapi.sh
+      - run: ./scripts/check-runtime-openapi.sh
