@@ -42,6 +42,9 @@ public class Ontology {
     @Column(name = "validation_allow_self_relations", nullable = false)
     private boolean validationAllowSelfRelations = true;
 
+    @Column(name = "graph_layout_json", nullable = false, columnDefinition = "TEXT")
+    private String graphLayoutJson = "{}";
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -147,5 +150,13 @@ public class Ontology {
 
     public boolean isValidationAllowSelfRelations() {
         return validationAllowSelfRelations;
+    }
+
+    public String getGraphLayoutJson() {
+        return graphLayoutJson;
+    }
+
+    public void updateGraphLayout(String graphLayoutJson) {
+        this.graphLayoutJson = graphLayoutJson;
     }
 }

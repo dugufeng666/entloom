@@ -74,4 +74,17 @@ public class OntologyController {
     public OntologyValidationResponse validate(@PathVariable UUID projectId, @PathVariable UUID id) {
         return validationService.validate(projectId, id);
     }
+
+    @GetMapping("/{id}/layout")
+    public OntologyLayoutResponse layout(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return ontologyService.layout(projectId, id);
+    }
+
+    @PatchMapping("/{id}/layout")
+    public OntologyLayoutResponse updateLayout(
+            @PathVariable UUID projectId,
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateOntologyLayoutRequest request) {
+        return ontologyService.updateLayout(projectId, id, request);
+    }
 }

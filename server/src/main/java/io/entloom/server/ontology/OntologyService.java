@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,18 +24,21 @@ public class OntologyService {
     private final OntologyClassRepository classRepository;
     private final OntologyPropertyRepository propertyRepository;
     private final OntologyRelationRepository relationRepository;
+    private final ObjectMapper objectMapper;
 
     public OntologyService(
             OntologyRepository ontologyRepository,
             ProjectRepository projectRepository,
             OntologyClassRepository classRepository,
             OntologyPropertyRepository propertyRepository,
-            OntologyRelationRepository relationRepository) {
+            OntologyRelationRepository relationRepository,
+            ObjectMapper objectMapper) {
         this.ontologyRepository = ontologyRepository;
         this.projectRepository = projectRepository;
         this.classRepository = classRepository;
         this.propertyRepository = propertyRepository;
         this.relationRepository = relationRepository;
+        this.objectMapper = objectMapper;
     }
 
     public List<OntologyResponse> list(UUID projectId) {
@@ -99,6 +106,23 @@ public class OntologyService {
         return OntologyResponse.from(fork);
     }
 
+    public OntologyLayoutResponse layout(UUID projectId, UUID id) {
+        return new OntologyLayoutResponse(readLayout(requireOntology(projectId, id).getGraphLayoutJson()));
+    }
+
+    @Transactional
+    public OntologyLayoutResponse updateLayout(UUID projectId, UUID id, UpdateOntologyLayoutRequest request) {
+        Ontology ontology = requireOntology(projectId, id);
+        try {
+            String json = objectMapper.writeValueAsString(request.positions());
+            ontology.updateGraphLayout(json);
+            ontologyRepository.saveAndFlush(ontology);
+            return new OntologyLayoutResponse(request.positions());
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("Unable to save ontology graph layout", exception);
+        }
+    }
+
     private void requireProject(UUID projectId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ProjectNotFoundException(projectId);
@@ -115,5 +139,13 @@ public class OntologyService {
             return null;
         }
         return description.trim();
+    }
+
+    private Map<String, OntologyLayoutPosition> readLayout(String json) {
+        try {
+            return objectMapper.readValue(json == null || json.isBlank() ? "{}" : json, new TypeReference<>() { });
+        } catch (JsonProcessingException exception) {
+            return Map.of();
+        }
     }
 }

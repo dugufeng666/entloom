@@ -155,6 +155,24 @@ class OntologyControllerTest {
                 .andExpect(jsonPath("$.issues[0].severity").value("ERROR"));
     }
 
+    @Test
+    @WithMockUser
+    void savesAndReadsGraphLayout() throws Exception {
+        Project project = projectRepository.saveAndFlush(Project.create("Layout model", null));
+        Ontology ontology = ontologyRepository.saveAndFlush(Ontology.create(project.getId(), "Layout ontology", null));
+        String classId = "node-1";
+
+        mockMvc.perform(patch("/api/v1/projects/{projectId}/ontologies/{id}/layout", project.getId(), ontology.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"positions\":{\"" + classId + "\":{\"x\":120.5,\"y\":48}}}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.positions." + classId + ".x").value(120.5));
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/ontologies/{id}/layout", project.getId(), ontology.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.positions." + classId + ".y").value(48));
+    }
+
     @Autowired
     private OntologyRepository ontologyRepository;
 

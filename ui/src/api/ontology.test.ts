@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { changeOntologyStatus, compareOntologyReleases, createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, deleteOntologyClass, forkOntology, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology, updateOntologyProperty, validateOntology } from './ontology'
+import { changeOntologyStatus, compareOntologyReleases, createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, deleteOntologyClass, forkOntology, getOntologyLayout, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology, saveOntologyLayout, updateOntologyProperty, validateOntology } from './ontology'
 
 describe('ontology API client', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -58,5 +58,14 @@ describe('ontology API client', () => {
     await expect(validateOntology('p-1', 'o-1')).resolves.toMatchObject({ valid: false })
     await expect(forkOntology('p-1', 'o-1', 'Fork', '')).resolves.toMatchObject({ id: 'o-2' })
     await expect(updateOntologyProperty('p-1', 'o-1', 'c-1', 'prop-1', { name: 'email', description: '', valueType: 'TEXT', required: true })).resolves.toMatchObject({ name: 'email' })
+  })
+
+  it('persists graph layout coordinates', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ positions: { 'c-1': { x: 120, y: 48 } } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ positions: { 'c-1': { x: 120, y: 48 } } }), { status: 200 })))
+
+    await expect(getOntologyLayout('p-1', 'o-1')).resolves.toMatchObject({ positions: { 'c-1': { x: 120 } } })
+    await expect(saveOntologyLayout('p-1', 'o-1', { 'c-1': { x: 120, y: 48 } })).resolves.toMatchObject({ positions: { 'c-1': { y: 48 } } })
   })
 })

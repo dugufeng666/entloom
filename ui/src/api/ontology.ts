@@ -13,6 +13,8 @@ export interface OntologyReleaseChange { kind: 'CLASS' | 'PROPERTY' | 'RELATION'
 export interface OntologyReleaseDiff { fromReleaseId: string; fromVersion: string; toReleaseId: string; toVersion: string; changes: OntologyReleaseChange[] }
 export interface OntologyValidationIssue { severity: 'ERROR' | 'WARNING'; code: string; message: string; location: string }
 export interface OntologyValidation { valid: boolean; issues: OntologyValidationIssue[] }
+export interface OntologyLayoutPosition { x: number; y: number }
+export interface OntologyLayout { positions: Record<string, OntologyLayoutPosition> }
 
 const apiOrigin = (import.meta.env.VITE_ENTLOOM_API_BASE_URL ?? '').replace(/\/$/, '')
 const endpoint = (projectId: string) => `${apiOrigin}/api/v1/projects/${projectId}/ontologies`
@@ -61,6 +63,14 @@ export async function forkOntology(projectId: string, ontologyId: string, name: 
 
 export async function validateOntology(projectId: string, ontologyId: string, credentials?: AuthCredentials) {
   return readJson<OntologyValidation>(await fetch(`${endpoint(projectId)}/${ontologyId}/validation`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
+}
+
+export async function getOntologyLayout(projectId: string, ontologyId: string, credentials?: AuthCredentials) {
+  return readJson<OntologyLayout>(await fetch(`${endpoint(projectId)}/${ontologyId}/layout`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
+}
+
+export async function saveOntologyLayout(projectId: string, ontologyId: string, positions: Record<string, OntologyLayoutPosition>, credentials?: AuthCredentials) {
+  return readJson<OntologyLayout>(await fetch(`${endpoint(projectId)}/${ontologyId}/layout`, { method: 'PATCH', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify({ positions }) }))
 }
 
 export async function deleteOntologyClass(projectId: string, ontologyId: string, classId: string, credentials?: AuthCredentials) { return deleteResource(`${endpoint(projectId)}/${ontologyId}/classes/${classId}`, credentials) }
