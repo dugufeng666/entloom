@@ -3,9 +3,9 @@ name = "entloom_client"
 version = "0.1.0"
 description = "Entloom API"
 authors = ["OpenAPI Generator Community <team@openapitools.org>"]
-license = "NoLicense"
+license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/GIT_USER_ID/GIT_REPO_ID"
+repository = "https://github.com/dugufeng666/entloom"
 keywords = ["OpenAPI", "OpenAPI-Generator", "Entloom API"]
 include = ["entloom_client/py.typed"]
 

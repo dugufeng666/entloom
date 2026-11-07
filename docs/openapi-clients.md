@@ -196,4 +196,19 @@ git push origin v0.2.0
 - Python wheel 和 source distribution。
 - `SHA256SUMS` 校验文件。
 
-GitHub Release 是当前默认的分发渠道；npm、Maven Central 和 PyPI 的正式发布仍需要配置各自仓库的凭据与发布目标。
+GitHub Release 是当前默认的分发渠道。三个包仓库的自动发布 Job 已经接入同一个工作流，但默认关闭，避免在尚未完成包名和账号绑定时误发版本。
+
+启用自动发布前，在 GitHub 仓库配置变量 `ENTLOOM_PUBLISH_PACKAGES=true`，并配置以下发布目标：
+
+- npm：在 `@entloom/client` 的 npm 设置中添加 GitHub Actions Trusted Publisher，工作流文件填写 `release-clients.yml`。工作流使用 OIDC，不保存长期 npm token。
+- PyPI：为 `entloom-client` 添加 GitHub Actions Trusted Publisher，环境名使用 `pypi`。工作流使用 PyPI OIDC 发布。
+- Maven Central：创建 `maven-central` 环境，并配置 `MAVEN_USERNAME`、`MAVEN_PASSWORD`、`MAVEN_GPG_PRIVATE_KEY`、`MAVEN_GPG_PASSPHRASE` 四个 Secrets。Java POM 使用 Central Publisher Portal 插件和 `sign-artifacts` profile 自动签名发布。
+
+完成配置后，推送版本 tag 即会同时触发 GitHub Release、npm、PyPI 和 Maven Central 发布：
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+相关官方配置说明：[npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers/)、[PyPI Trusted Publishers](https://docs.pypi.org/trusted-publishers/)、[Maven Central Publisher Portal](https://central.sonatype.org/publish/publish-portal-maven/)。

@@ -36,7 +36,7 @@ setup(
     description="Entloom API",
     author="OpenAPI Generator community",
     author_email="team@openapitools.org",
-    url="",
+    url="https://github.com/dugufeng666/entloom",
     keywords=["OpenAPI", "OpenAPI-Generator", "Entloom API"],
     install_requires=REQUIRES,
     packages=find_packages(exclude=["test", "tests"]),
