@@ -34,6 +34,7 @@ The private BigDataFlowing website and learning center are separate products. Th
 - JSON ontology transfer import/export and persisted validation jobs.
 - A versioned OpenAPI YAML contract at `/api/v1/openapi.yaml` for external integrations.
 - Generated JavaScript, Java and Python clients under `clients/`.
+- OpenAPI client publishing and usage guide in [`docs/openapi-clients.md`](docs/openapi-clients.md).
 - A Vue shell for the platform workspace.
 - PostgreSQL for durable state and Redis for coordination and caching.
 - Docker Compose for local development.
