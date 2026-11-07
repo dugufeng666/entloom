@@ -32,3 +32,4 @@ pnpm-debug.log*
 tmp/
 build/
 coverage/
+.cache/

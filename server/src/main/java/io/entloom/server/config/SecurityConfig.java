@@ -21,7 +21,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/actuator/health", "/actuator/info", "/api/v1/hello").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/info", "/api/v1/hello", "/api/v1/openapi", "/api/v1/openapi.yaml", "/api/v1/openapi/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(basic -> {})
                 .build();

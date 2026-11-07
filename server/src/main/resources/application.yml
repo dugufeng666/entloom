@@ -34,3 +34,7 @@ server:
 entloom:
   api:
     version: v1
+
+springdoc:
+  api-docs:
+    path: /api/v1/openapi
