@@ -1,0 +1,62 @@
+name: Release clients
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  package-clients:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate clients
+        run: ./scripts/generate-clients.sh
+
+      - name: Build JavaScript package
+        working-directory: clients/javascript
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          mkdir -p dist
+          npm pack --pack-destination dist
+
+      - name: Build Java package
+        working-directory: clients/java
+        run: mvn -B -DskipTests package
+
+      - name: Build Python package
+        working-directory: clients/python
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+
+      - name: Collect release files
+        run: |
+          mkdir -p release
+          cp clients/javascript/dist/*.tgz release/
+          cp clients/java/target/entloom-client-*.jar release/
+          cp clients/python/dist/* release/
+          sha256sum release/* > release/SHA256SUMS
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" release/* --generate-notes --title "Entloom ${GITHUB_REF_NAME}"

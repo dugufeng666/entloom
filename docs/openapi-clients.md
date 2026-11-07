@@ -178,4 +178,22 @@ python -m twine upload dist/*
 - 向后兼容的接口扩展：次版本，例如 `0.2.0`。
 - 删除字段、改变必填参数或改变语义：主版本，例如 `1.0.0`。
 
-当前 CI 负责契约有效性和生成一致性检查；npm、Maven Central 和 PyPI 的正式发布仍需要配置各自仓库的凭据与发布目标。
+当前 CI 负责契约有效性和生成一致性检查。推送形如 `v0.2.0` 的 Git tag 后，`Release clients` 工作流会自动构建 JavaScript、Java 和 Python 包，并把包文件与 `SHA256SUMS` 上传到 GitHub Release。
+
+## GitHub Release 发布
+
+发布前确认契约快照、三个客户端目录和版本号已经在同一个提交中更新，然后创建并推送版本 tag：
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+工作流文件是 `.github/workflows/release-clients.yml`。它会生成：
+
+- JavaScript npm tarball。
+- Java Maven JAR。
+- Python wheel 和 source distribution。
+- `SHA256SUMS` 校验文件。
+
+GitHub Release 是当前默认的分发渠道；npm、Maven Central 和 PyPI 的正式发布仍需要配置各自仓库的凭据与发布目标。
