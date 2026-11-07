@@ -1,76 +1,1650 @@
 openapi: 3.1.0
 info:
-  title: Entloom API
-  version: 0.1.0
-  description: Enterprise ontology and governed context platform API.
+  title: OpenAPI definition
+  version: v0
 servers:
-  - url: http://localhost:8080
+- url: http://localhost:18080
+  description: Generated server url
 paths:
-  /api/v1/auth/me:
-    get:
-      summary: Read the authenticated user
-      security: [{ basicAuth: [] }]
-      responses: { '200': { description: Authenticated user } }
   /api/v1/projects:
     get:
-      summary: List projects
-      security: [{ basicAuth: [] }]
-      responses: { '200': { description: Project list } }
+      tags:
+      - project-controller
+      operationId: list
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectResponse"
     post:
-      summary: Create a project
-      security: [{ basicAuth: [] }]
-      responses: { '201': { description: Created project } }
+      tags:
+      - project-controller
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
   /api/v1/projects/{projectId}/ontologies:
-    parameters: [{ $ref: '#/components/parameters/projectId' }]
     get:
-      summary: List project ontologies
-      security: [{ basicAuth: [] }]
-      responses: { '200': { description: Ontology list } }
+      tags:
+      - ontology-controller
+      operationId: list_1
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OntologyResponse"
     post:
-      summary: Create an ontology
-      security: [{ basicAuth: [] }]
-      responses: { '201': { description: Created ontology } }
-  /api/v1/projects/{projectId}/ontologies/{ontologyId}/export:
-    parameters:
-      - { $ref: '#/components/parameters/projectId' }
-      - { $ref: '#/components/parameters/ontologyId' }
+      tags:
+      - ontology-controller
+      operationId: create_1
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOntologyRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/releases:
     get:
-      summary: Export an ontology as transfer JSON
-      security: [{ basicAuth: [] }]
-      responses: { '200': { description: Ontology transfer document } }
+      tags:
+      - ontology-release-controller
+      operationId: list_2
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OntologyReleaseResponse"
+    post:
+      tags:
+      - ontology-release-controller
+      operationId: release
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReleaseOntologyRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyReleaseResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/relations:
+    get:
+      tags:
+      - ontology-relation-controller
+      operationId: list_3
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OntologyRelationResponse"
+    post:
+      tags:
+      - ontology-relation-controller
+      operationId: create_2
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOntologyRelationRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyRelationResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/classes:
+    get:
+      tags:
+      - ontology-class-controller
+      operationId: list_4
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OntologyClassResponse"
+    post:
+      tags:
+      - ontology-class-controller
+      operationId: create_3
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOntologyClassRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyClassResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/classes/{classId}/properties:
+    get:
+      tags:
+      - ontology-property-controller
+      operationId: list_5
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: classId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OntologyPropertyResponse"
+    post:
+      tags:
+      - ontology-property-controller
+      operationId: create_4
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: classId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOntologyPropertyRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyPropertyResponse"
+  /api/v1/projects/{projectId}/ontologies/{id}/validation-jobs:
+    get:
+      tags:
+      - ontology-controller
+      operationId: listValidationJobs
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OntologyValidationJobResponse"
+    post:
+      tags:
+      - ontology-controller
+      operationId: runValidationJob
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyValidationJobResponse"
+  /api/v1/projects/{projectId}/ontologies/{id}/fork:
+    post:
+      tags:
+      - ontology-controller
+      operationId: fork
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForkOntologyRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyResponse"
   /api/v1/projects/{projectId}/ontologies/import:
-    parameters: [{ $ref: '#/components/parameters/projectId' }]
     post:
-      summary: Import a transfer JSON document as a new draft
-      security: [{ basicAuth: [] }]
-      responses: { '201': { description: Imported draft ontology } }
-  /api/v1/projects/{projectId}/ontologies/{ontologyId}/validation-jobs:
-    parameters:
-      - { $ref: '#/components/parameters/projectId' }
-      - { $ref: '#/components/parameters/ontologyId' }
+      tags:
+      - ontology-controller
+      operationId: importOntology
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OntologyTransferRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/relations/{id}:
     get:
-      summary: List validation jobs
-      security: [{ basicAuth: [] }]
-      responses: { '200': { description: Validation job history } }
-    post:
-      summary: Run a validation job
-      security: [{ basicAuth: [] }]
-      responses: { '201': { description: Completed validation job } }
-  /api/v1/projects/{projectId}/ontologies/{ontologyId}/layout:
-    parameters:
-      - { $ref: '#/components/parameters/projectId' }
-      - { $ref: '#/components/parameters/ontologyId' }
-    get:
-      summary: Read graph layout
-      security: [{ basicAuth: [] }]
-      responses: { '200': { description: Graph layout } }
+      tags:
+      - ontology-relation-controller
+      operationId: get
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyRelationResponse"
+    delete:
+      tags:
+      - ontology-relation-controller
+      operationId: delete
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
     patch:
-      summary: Save graph layout
-      security: [{ basicAuth: [] }]
-      responses: { '200': { description: Saved graph layout } }
+      tags:
+      - ontology-relation-controller
+      operationId: update
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOntologyRelationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyRelationResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/classes/{id}:
+    get:
+      tags:
+      - ontology-class-controller
+      operationId: get_1
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyClassResponse"
+    delete:
+      tags:
+      - ontology-class-controller
+      operationId: delete_1
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+    patch:
+      tags:
+      - ontology-class-controller
+      operationId: update_1
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOntologyClassRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyClassResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/classes/{classId}/properties/{id}:
+    get:
+      tags:
+      - ontology-property-controller
+      operationId: get_2
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: classId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyPropertyResponse"
+    delete:
+      tags:
+      - ontology-property-controller
+      operationId: delete_2
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: classId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+    patch:
+      tags:
+      - ontology-property-controller
+      operationId: update_2
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: classId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOntologyPropertyRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyPropertyResponse"
+  /api/v1/projects/{projectId}/ontologies/{id}:
+    get:
+      tags:
+      - ontology-controller
+      operationId: get_3
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyResponse"
+    patch:
+      tags:
+      - ontology-controller
+      operationId: update_3
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOntologyRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyResponse"
+  /api/v1/projects/{projectId}/ontologies/{id}/status:
+    patch:
+      tags:
+      - ontology-controller
+      operationId: changeStatus
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeOntologyStatusRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyResponse"
+  /api/v1/projects/{projectId}/ontologies/{id}/layout:
+    get:
+      tags:
+      - ontology-controller
+      operationId: layout
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyLayoutResponse"
+    patch:
+      tags:
+      - ontology-controller
+      operationId: updateLayout
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOntologyLayoutRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyLayoutResponse"
+  /api/v1/projects/{id}:
+    get:
+      tags:
+      - project-controller
+      operationId: get_4
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+    patch:
+      tags:
+      - project-controller
+      operationId: update_4
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+  /api/v1/projects/{id}/status:
+    patch:
+      tags:
+      - project-controller
+      operationId: changeStatus_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeProjectStatusRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+  /api/v1/projects/{projectId}/ontologies/{ontologyId}/releases/diff:
+    get:
+      tags:
+      - ontology-release-controller
+      operationId: diff
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: ontologyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: from
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: to
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyReleaseDiffResponse"
+  /api/v1/projects/{projectId}/ontologies/{id}/validation:
+    get:
+      tags:
+      - ontology-controller
+      operationId: validate
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyValidationResponse"
+  /api/v1/projects/{projectId}/ontologies/{id}/export:
+    get:
+      tags:
+      - ontology-controller
+      operationId: export
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OntologyTransferRequest"
+  /api/v1/hello:
+    get:
+      tags:
+      - health-controller
+      operationId: hello
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /api/v1/auth/me:
+    get:
+      tags:
+      - auth-controller
+      operationId: currentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CurrentUserResponse"
 components:
-  securitySchemes:
-    basicAuth: { type: http, scheme: basic }
-  parameters:
-    projectId: { name: projectId, in: path, required: true, schema: { type: string, format: uuid } }
-    ontologyId: { name: ontologyId, in: path, required: true, schema: { type: string, format: uuid } }
+  schemas:
+    CreateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - name
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - ACTIVE
+          - ARCHIVED
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+    CreateOntologyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - name
+    OntologyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - RELEASED
+          - ARCHIVED
+        requireClassProperties:
+          type: boolean
+        allowSelfRelations:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+    ReleaseOntologyRequest:
+      type: object
+      properties:
+        version:
+          type: string
+          minLength: 1
+          pattern: \d+\.\d+\.\d+
+        notes:
+          type: string
+          maxLength: 2000
+          minLength: 0
+      required:
+      - version
+    OntologyReleaseResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ontologyId:
+          type: string
+          format: uuid
+        version:
+          type: string
+        notes:
+          type: string
+        releasedBy:
+          type: string
+        releasedAt:
+          type: string
+          format: date-time
+        classCount:
+          type: integer
+          format: int64
+        propertyCount:
+          type: integer
+          format: int64
+        relationCount:
+          type: integer
+          format: int64
+    CreateOntologyRelationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+        sourceClassId:
+          type: string
+          format: uuid
+        targetClassId:
+          type: string
+          format: uuid
+        cardinality:
+          type: string
+          enum:
+          - ONE_TO_ONE
+          - ONE_TO_MANY
+          - MANY_TO_ONE
+          - MANY_TO_MANY
+      required:
+      - cardinality
+      - name
+      - sourceClassId
+      - targetClassId
+    OntologyRelationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ontologyId:
+          type: string
+          format: uuid
+        sourceClassId:
+          type: string
+          format: uuid
+        targetClassId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        cardinality:
+          type: string
+          enum:
+          - ONE_TO_ONE
+          - ONE_TO_MANY
+          - MANY_TO_ONE
+          - MANY_TO_MANY
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+    CreateOntologyClassRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - name
+    OntologyClassResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ontologyId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+    CreateOntologyPropertyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+        valueType:
+          type: string
+          enum:
+          - TEXT
+          - NUMBER
+          - BOOLEAN
+          - DATE
+          - REFERENCE
+        required:
+          type: boolean
+      required:
+      - name
+      - required
+      - valueType
+    OntologyPropertyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ontologyId:
+          type: string
+          format: uuid
+        classId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        valueType:
+          type: string
+          enum:
+          - TEXT
+          - NUMBER
+          - BOOLEAN
+          - DATE
+          - REFERENCE
+        required:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+    Issue:
+      type: object
+      properties:
+        severity:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+        location:
+          type: string
+    OntologyValidationJobResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ontologyId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - PENDING
+          - RUNNING
+          - SUCCEEDED
+          - FAILED
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/Issue"
+        createdAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+    ForkOntologyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - name
+    ClassTransfer:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        properties:
+          type: array
+          items:
+            $ref: "#/components/schemas/PropertyTransfer"
+      required:
+      - name
+    OntologyTransferRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        classes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassTransfer"
+        relations:
+          type: array
+          items:
+            $ref: "#/components/schemas/RelationTransfer"
+      required:
+      - name
+    PropertyTransfer:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        valueType:
+          type: string
+          enum:
+          - TEXT
+          - NUMBER
+          - BOOLEAN
+          - DATE
+          - REFERENCE
+        required:
+          type: boolean
+      required:
+      - name
+    RelationTransfer:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        sourceClass:
+          type: string
+        targetClass:
+          type: string
+        cardinality:
+          type: string
+          enum:
+          - ONE_TO_ONE
+          - ONE_TO_MANY
+          - MANY_TO_ONE
+          - MANY_TO_MANY
+      required:
+      - name
+    UpdateOntologyRelationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+        sourceClassId:
+          type: string
+          format: uuid
+        targetClassId:
+          type: string
+          format: uuid
+        cardinality:
+          type: string
+          enum:
+          - ONE_TO_ONE
+          - ONE_TO_MANY
+          - MANY_TO_ONE
+          - MANY_TO_MANY
+      required:
+      - cardinality
+      - name
+      - sourceClassId
+      - targetClassId
+    UpdateOntologyClassRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - name
+    UpdateOntologyPropertyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+        valueType:
+          type: string
+          enum:
+          - TEXT
+          - NUMBER
+          - BOOLEAN
+          - DATE
+          - REFERENCE
+        required:
+          type: boolean
+      required:
+      - name
+      - required
+      - valueType
+    UpdateOntologyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+        requireClassProperties:
+          type: boolean
+        allowSelfRelations:
+          type: boolean
+      required:
+      - name
+    ChangeOntologyStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - RELEASED
+          - ARCHIVED
+      required:
+      - status
+    OntologyLayoutPosition:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+        "y":
+          type: number
+          format: double
+    UpdateOntologyLayoutRequest:
+      type: object
+      properties:
+        positions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/OntologyLayoutPosition"
+    OntologyLayoutResponse:
+      type: object
+      properties:
+        positions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/OntologyLayoutPosition"
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - name
+    ChangeProjectStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - ACTIVE
+          - ARCHIVED
+      required:
+      - status
+    OntologyReleaseChange:
+      type: object
+      properties:
+        kind:
+          type: string
+        changeType:
+          type: string
+        itemId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        location:
+          type: string
+        before: {}
+        after: {}
+    OntologyReleaseDiffResponse:
+      type: object
+      properties:
+        fromReleaseId:
+          type: string
+          format: uuid
+        fromVersion:
+          type: string
+        toReleaseId:
+          type: string
+          format: uuid
+        toVersion:
+          type: string
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/OntologyReleaseChange"
+    OntologyValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/Issue"
+    CurrentUserResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string

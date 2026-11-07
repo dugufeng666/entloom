@@ -1,5 +1,12 @@
 # flake8: noqa
 
 # import apis into api package
-from entloom_client.api.default_api import DefaultApi
+from entloom_client.api.auth_controller_api import AuthControllerApi
+from entloom_client.api.health_controller_api import HealthControllerApi
+from entloom_client.api.ontology_class_controller_api import OntologyClassControllerApi
+from entloom_client.api.ontology_controller_api import OntologyControllerApi
+from entloom_client.api.ontology_property_controller_api import OntologyPropertyControllerApi
+from entloom_client.api.ontology_relation_controller_api import OntologyRelationControllerApi
+from entloom_client.api.ontology_release_controller_api import OntologyReleaseControllerApi
+from entloom_client.api.project_controller_api import ProjectControllerApi
 

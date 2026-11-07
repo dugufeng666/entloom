@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "entloom_client"
 version = "0.1.0"
-description = "Entloom API"
+description = "OpenAPI definition"
 authors = ["OpenAPI Generator Community <team@openapitools.org>"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/dugufeng666/entloom"
-keywords = ["OpenAPI", "OpenAPI-Generator", "Entloom API"]
+keywords = ["OpenAPI", "OpenAPI-Generator", "OpenAPI definition"]
 include = ["entloom_client/py.typed"]
 
 [tool.poetry.dependencies]

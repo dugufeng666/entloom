@@ -82,4 +82,11 @@ profile_close = """                </plugins>
     </profiles>"""
 pom_text = pom_text.replace(profile_close, central_plugin + profile_close, 1)
 maven_pom.write_text(pom_text)
+
+# OpenAPI Generator's markdown templates include trailing spaces in tables.
+# Normalize generated text files so repository checks remain clean and stable.
+for path in (root / "clients").rglob("*"):
+    if path.is_file() and path.suffix in {".md", ".java", ".ts", ".py", ".toml", ".xml", ".yml", ".yaml", ".json"}:
+        text = path.read_text()
+        path.write_text("\n".join(line.rstrip() for line in text.splitlines()) + ("\n" if text.endswith("\n") else ""))
 PY
