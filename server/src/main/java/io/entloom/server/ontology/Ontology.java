@@ -36,6 +36,12 @@ public class Ontology {
     @Column(nullable = false, length = 32)
     private OntologyStatus status = OntologyStatus.DRAFT;
 
+    @Column(name = "validation_require_class_properties", nullable = false)
+    private boolean validationRequireClassProperties;
+
+    @Column(name = "validation_allow_self_relations", nullable = false)
+    private boolean validationAllowSelfRelations = true;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -60,6 +66,16 @@ public class Ontology {
     public void updateDetails(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public void updateDetails(String name, String description, Boolean requireClassProperties, Boolean allowSelfRelations) {
+        updateDetails(name, description);
+        if (requireClassProperties != null) {
+            validationRequireClassProperties = requireClassProperties;
+        }
+        if (allowSelfRelations != null) {
+            validationAllowSelfRelations = allowSelfRelations;
+        }
     }
 
     public void changeStatus(OntologyStatus requested) {
@@ -123,5 +139,13 @@ public class Ontology {
 
     public long getVersion() {
         return version;
+    }
+
+    public boolean isValidationRequireClassProperties() {
+        return validationRequireClassProperties;
+    }
+
+    public boolean isValidationAllowSelfRelations() {
+        return validationAllowSelfRelations;
     }
 }

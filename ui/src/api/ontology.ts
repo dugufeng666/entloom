@@ -1,7 +1,7 @@
 import { authorizationHeader, type AuthCredentials } from './auth'
 
 export type OntologyStatus = 'DRAFT' | 'RELEASED' | 'ARCHIVED'
-export interface Ontology { id: string; projectId: string; name: string; description?: string | null; status: OntologyStatus }
+export interface Ontology { id: string; projectId: string; name: string; description?: string | null; status: OntologyStatus; requireClassProperties?: boolean; allowSelfRelations?: boolean }
 export interface OntologyClass { id: string; ontologyId: string; name: string; description?: string | null }
 export type OntologyPropertyValueType = 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'REFERENCE'
 export type OntologyRelationCardinality = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'MANY_TO_ONE' | 'MANY_TO_MANY'
@@ -37,6 +37,10 @@ export async function listOntologies(projectId: string, credentials?: AuthCreden
 
 export async function createOntology(projectId: string, name: string, description: string, credentials?: AuthCredentials) {
   return readJson<Ontology>(await fetch(endpoint(projectId), { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify({ name, description }) }))
+}
+
+export async function updateOntology(projectId: string, ontologyId: string, input: { name: string; description: string; requireClassProperties?: boolean; allowSelfRelations?: boolean }, credentials?: AuthCredentials) {
+  return readJson<Ontology>(await fetch(`${endpoint(projectId)}/${ontologyId}`, { method: 'PATCH', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify(input) }))
 }
 
 export async function listOntologyClasses(projectId: string, ontologyId: string, credentials?: AuthCredentials) {

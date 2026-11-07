@@ -26,7 +26,7 @@ public class OntologyValidationService {
     }
 
     public OntologyValidationResponse validate(UUID projectId, UUID ontologyId) {
-        ontologyRepository.findByIdAndProjectId(ontologyId, projectId)
+        Ontology ontology = ontologyRepository.findByIdAndProjectId(ontologyId, projectId)
                 .orElseThrow(() -> new OntologyNotFoundException(ontologyId));
         List<OntologyValidationResponse.Issue> issues = new ArrayList<>();
         List<OntologyClass> classes = classRepository.findAllByOntologyIdOrderByUpdatedAtDesc(ontologyId);
@@ -35,12 +35,12 @@ public class OntologyValidationService {
         }
         for (OntologyClass ontologyClass : classes) {
             if (propertyRepository.findAllByClassIdOrderByUpdatedAtDesc(ontologyClass.getId()).isEmpty()) {
-                issues.add(new OntologyValidationResponse.Issue("WARNING", "CLASS_WITHOUT_PROPERTIES", "Class has no properties yet.", "Class / " + ontologyClass.getName()));
+                issues.add(new OntologyValidationResponse.Issue(ontology.isValidationRequireClassProperties() ? "ERROR" : "WARNING", "CLASS_WITHOUT_PROPERTIES", "Class has no properties yet.", "Class / " + ontologyClass.getName()));
             }
         }
         for (OntologyRelation relation : relationRepository.findAllByOntologyIdOrderByUpdatedAtDesc(ontologyId)) {
             if (relation.getSourceClassId().equals(relation.getTargetClassId())) {
-                issues.add(new OntologyValidationResponse.Issue("WARNING", "SELF_RELATION", "Relation points from a class to itself.", "Relation / " + relation.getName()));
+                issues.add(new OntologyValidationResponse.Issue(ontology.isValidationAllowSelfRelations() ? "WARNING" : "ERROR", "SELF_RELATION", "Relation points from a class to itself.", "Relation / " + relation.getName()));
             }
         }
         boolean valid = issues.stream().noneMatch(issue -> "ERROR".equals(issue.severity()));

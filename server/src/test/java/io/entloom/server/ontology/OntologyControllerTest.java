@@ -135,6 +135,26 @@ class OntologyControllerTest {
                 .andExpect(jsonPath("$.issues[0].code").value("NO_CLASSES"));
     }
 
+    @Test
+    @WithMockUser
+    void persistsValidationRuleConfiguration() throws Exception {
+        Project project = projectRepository.saveAndFlush(Project.create("Rules model", null));
+        Ontology ontology = ontologyRepository.saveAndFlush(Ontology.create(project.getId(), "Rules ontology", null));
+        ontologyClassRepository.saveAndFlush(OntologyClass.create(ontology.getId(), "Customer", null));
+
+        mockMvc.perform(patch("/api/v1/projects/{projectId}/ontologies/{id}", project.getId(), ontology.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Rules ontology\",\"description\":null,\"requireClassProperties\":true,\"allowSelfRelations\":false}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.requireClassProperties").value(true))
+                .andExpect(jsonPath("$.allowSelfRelations").value(false));
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/ontologies/{id}/validation", project.getId(), ontology.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valid").value(false))
+                .andExpect(jsonPath("$.issues[0].severity").value("ERROR"));
+    }
+
     @Autowired
     private OntologyRepository ontologyRepository;
 

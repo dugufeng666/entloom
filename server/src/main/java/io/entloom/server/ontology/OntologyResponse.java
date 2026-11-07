@@ -9,6 +9,8 @@ public record OntologyResponse(
         String name,
         String description,
         OntologyStatus status,
+        boolean requireClassProperties,
+        boolean allowSelfRelations,
         Instant createdAt,
         Instant updatedAt,
         long version) {
@@ -20,6 +22,8 @@ public record OntologyResponse(
                 ontology.getName(),
                 ontology.getDescription(),
                 ontology.getStatus(),
+                ontology.isValidationRequireClassProperties(),
+                ontology.isValidationAllowSelfRelations(),
                 ontology.getCreatedAt(),
                 ontology.getUpdatedAt(),
                 ontology.getVersion());

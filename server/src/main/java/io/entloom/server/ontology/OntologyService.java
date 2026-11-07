@@ -59,7 +59,7 @@ public class OntologyService {
     @Transactional
     public OntologyResponse update(UUID projectId, UUID id, UpdateOntologyRequest request) {
         Ontology ontology = requireOntology(projectId, id);
-        ontology.updateDetails(request.name().trim(), normalize(request.description()));
+        ontology.updateDetails(request.name().trim(), normalize(request.description()), request.requireClassProperties(), request.allowSelfRelations());
         ontologyRepository.saveAndFlush(ontology);
         return OntologyResponse.from(ontology);
     }
@@ -76,6 +76,8 @@ public class OntologyService {
     public OntologyResponse fork(UUID projectId, UUID id, ForkOntologyRequest request) {
         Ontology source = requireOntology(projectId, id);
         Ontology fork = ontologyRepository.saveAndFlush(Ontology.create(projectId, request.name().trim(), normalize(request.description())));
+        fork.updateDetails(fork.getName(), fork.getDescription(), source.isValidationRequireClassProperties(), source.isValidationAllowSelfRelations());
+        ontologyRepository.saveAndFlush(fork);
         Map<UUID, UUID> classIds = new HashMap<>();
         for (OntologyClass sourceClass : classRepository.findAllByOntologyIdOrderByUpdatedAtDesc(source.getId())) {
             OntologyClass targetClass = classRepository.save(OntologyClass.create(fork.getId(), sourceClass.getName(), sourceClass.getDescription()));
