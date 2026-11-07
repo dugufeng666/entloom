@@ -1,6 +1,8 @@
 package io.entloom.server.ontology;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -15,10 +17,21 @@ public class OntologyService {
 
     private final OntologyRepository ontologyRepository;
     private final ProjectRepository projectRepository;
+    private final OntologyClassRepository classRepository;
+    private final OntologyPropertyRepository propertyRepository;
+    private final OntologyRelationRepository relationRepository;
 
-    public OntologyService(OntologyRepository ontologyRepository, ProjectRepository projectRepository) {
+    public OntologyService(
+            OntologyRepository ontologyRepository,
+            ProjectRepository projectRepository,
+            OntologyClassRepository classRepository,
+            OntologyPropertyRepository propertyRepository,
+            OntologyRelationRepository relationRepository) {
         this.ontologyRepository = ontologyRepository;
         this.projectRepository = projectRepository;
+        this.classRepository = classRepository;
+        this.propertyRepository = propertyRepository;
+        this.relationRepository = relationRepository;
     }
 
     public List<OntologyResponse> list(UUID projectId) {
@@ -57,6 +70,31 @@ public class OntologyService {
         ontology.changeStatus(status);
         ontologyRepository.saveAndFlush(ontology);
         return OntologyResponse.from(ontology);
+    }
+
+    @Transactional
+    public OntologyResponse fork(UUID projectId, UUID id, ForkOntologyRequest request) {
+        Ontology source = requireOntology(projectId, id);
+        Ontology fork = ontologyRepository.saveAndFlush(Ontology.create(projectId, request.name().trim(), normalize(request.description())));
+        Map<UUID, UUID> classIds = new HashMap<>();
+        for (OntologyClass sourceClass : classRepository.findAllByOntologyIdOrderByUpdatedAtDesc(source.getId())) {
+            OntologyClass targetClass = classRepository.save(OntologyClass.create(fork.getId(), sourceClass.getName(), sourceClass.getDescription()));
+            classIds.put(sourceClass.getId(), targetClass.getId());
+        }
+        classRepository.flush();
+        for (OntologyClass sourceClass : classRepository.findAllByOntologyIdOrderByUpdatedAtDesc(source.getId())) {
+            for (OntologyProperty property : propertyRepository.findAllByClassIdOrderByUpdatedAtDesc(sourceClass.getId())) {
+                propertyRepository.save(OntologyProperty.create(fork.getId(), classIds.get(sourceClass.getId()), property.getName(), property.getDescription(), property.getValueType(), property.isRequired()));
+            }
+        }
+        for (OntologyRelation relation : relationRepository.findAllByOntologyIdOrderByUpdatedAtDesc(source.getId())) {
+            UUID sourceClassId = classIds.get(relation.getSourceClassId());
+            UUID targetClassId = classIds.get(relation.getTargetClassId());
+            if (sourceClassId != null && targetClassId != null) {
+                relationRepository.save(OntologyRelation.create(fork.getId(), sourceClassId, targetClassId, relation.getName(), relation.getDescription(), relation.getCardinality()));
+            }
+        }
+        return OntologyResponse.from(fork);
     }
 
     private void requireProject(UUID projectId) {

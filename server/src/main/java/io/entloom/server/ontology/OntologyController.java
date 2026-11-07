@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class OntologyController {
 
     private final OntologyService ontologyService;
+    private final OntologyValidationService validationService;
 
-    public OntologyController(OntologyService ontologyService) {
+    public OntologyController(OntologyService ontologyService, OntologyValidationService validationService) {
         this.ontologyService = ontologyService;
+        this.validationService = validationService;
     }
 
     @GetMapping
@@ -57,5 +59,19 @@ public class OntologyController {
             @PathVariable UUID id,
             @Valid @RequestBody ChangeOntologyStatusRequest request) {
         return ontologyService.changeStatus(projectId, id, request.status());
+    }
+
+    @PostMapping("/{id}/fork")
+    @ResponseStatus(HttpStatus.CREATED)
+    public OntologyResponse fork(
+            @PathVariable UUID projectId,
+            @PathVariable UUID id,
+            @Valid @RequestBody ForkOntologyRequest request) {
+        return ontologyService.fork(projectId, id, request);
+    }
+
+    @GetMapping("/{id}/validation")
+    public OntologyValidationResponse validate(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return validationService.validate(projectId, id);
     }
 }

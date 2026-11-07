@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { changeOntologyStatus, compareOntologyReleases, createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, deleteOntologyClass, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology } from './ontology'
+import { changeOntologyStatus, compareOntologyReleases, createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, deleteOntologyClass, forkOntology, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology, updateOntologyProperty, validateOntology } from './ontology'
 
 describe('ontology API client', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -47,5 +47,16 @@ describe('ontology API client', () => {
     await expect(compareOntologyReleases('p-1', 'o-1', 'r-1', 'r-2')).resolves.toMatchObject({ fromVersion: '1.0.0' })
     await expect(deleteOntologyClass('p-1', 'o-1', 'c-1')).resolves.toBeUndefined()
     await expect(changeOntologyStatus('p-1', 'o-1', 'DRAFT')).resolves.toMatchObject({ status: 'DRAFT' })
+  })
+
+  it('validates, forks and edits a model resource', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ valid: false, issues: [{ severity: 'ERROR', code: 'NO_CLASSES', message: 'Add a class', location: 'ontology' }] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'o-2', name: 'Fork', status: 'DRAFT' }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'prop-1', name: 'email', valueType: 'TEXT', required: true }), { status: 200 })))
+
+    await expect(validateOntology('p-1', 'o-1')).resolves.toMatchObject({ valid: false })
+    await expect(forkOntology('p-1', 'o-1', 'Fork', '')).resolves.toMatchObject({ id: 'o-2' })
+    await expect(updateOntologyProperty('p-1', 'o-1', 'c-1', 'prop-1', { name: 'email', description: '', valueType: 'TEXT', required: true })).resolves.toMatchObject({ name: 'email' })
   })
 })

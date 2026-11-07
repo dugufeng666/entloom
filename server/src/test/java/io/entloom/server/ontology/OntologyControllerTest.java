@@ -101,6 +101,43 @@ class OntologyControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @WithMockUser
+    void forksOntologyIntoAnIndependentDraft() throws Exception {
+        Project project = projectRepository.saveAndFlush(Project.create("Fork model", null));
+        Ontology source = ontologyRepository.saveAndFlush(Ontology.create(project.getId(), "Published model", null));
+        ontologyClassRepository.saveAndFlush(OntologyClass.create(source.getId(), "Customer", null));
+
+        String forkBody = mockMvc.perform(post("/api/v1/projects/{projectId}/ontologies/{id}/fork", project.getId(), source.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Customer v2\",\"description\":\"Next draft\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Customer v2"))
+                .andExpect(jsonPath("$.status").value("DRAFT"))
+                .andReturn().getResponse().getContentAsString();
+        String forkId = new com.fasterxml.jackson.databind.ObjectMapper().readTree(forkBody).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/ontologies/{ontologyId}/classes", project.getId(), forkId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Customer"));
+    }
+
+    @Test
+    @WithMockUser
+    void reportsBlockingValidationIssueForEmptyOntology() throws Exception {
+        Project project = projectRepository.saveAndFlush(Project.create("Validation model", null));
+        Ontology ontology = ontologyRepository.saveAndFlush(Ontology.create(project.getId(), "Empty model", null));
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/ontologies/{id}/validation", project.getId(), ontology.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valid").value(false))
+                .andExpect(jsonPath("$.issues[0].code").value("NO_CLASSES"));
+    }
+
     @Autowired
     private OntologyRepository ontologyRepository;
+
+    @Autowired
+    private OntologyClassRepository ontologyClassRepository;
 }
