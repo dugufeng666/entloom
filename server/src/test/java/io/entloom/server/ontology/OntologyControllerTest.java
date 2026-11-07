@@ -173,6 +173,30 @@ class OntologyControllerTest {
                 .andExpect(jsonPath("$.positions." + classId + ".y").value(48));
     }
 
+    @Test
+    @WithMockUser
+    void exportsImportsAndRunsValidationJob() throws Exception {
+        Project project = projectRepository.saveAndFlush(Project.create("Exchange model", null));
+        Ontology ontology = ontologyRepository.saveAndFlush(Ontology.create(project.getId(), "Exchange ontology", null));
+        ontologyClassRepository.saveAndFlush(OntologyClass.create(ontology.getId(), "Customer", "A customer"));
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/ontologies/{id}/export", project.getId(), ontology.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Exchange ontology"))
+                .andExpect(jsonPath("$.classes[0].name").value("Customer"));
+
+        mockMvc.perform(post("/api/v1/projects/{projectId}/ontologies/import", project.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Imported ontology\",\"description\":\"copy\",\"classes\":[{\"name\":\"Account\",\"properties\":[]}],\"relations\":[]}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Imported ontology"))
+                .andExpect(jsonPath("$.status").value("DRAFT"));
+
+        mockMvc.perform(post("/api/v1/projects/{projectId}/ontologies/{id}/validation-jobs", project.getId(), ontology.getId()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("SUCCEEDED"));
+    }
+
     @Autowired
     private OntologyRepository ontologyRepository;
 

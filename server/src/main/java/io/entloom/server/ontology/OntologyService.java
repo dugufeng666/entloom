@@ -123,6 +123,44 @@ public class OntologyService {
         }
     }
 
+    public OntologyTransferRequest export(UUID projectId, UUID id) {
+        Ontology ontology = requireOntology(projectId, id);
+        List<OntologyClass> classes = classRepository.findAllByOntologyIdOrderByUpdatedAtDesc(id);
+        Map<UUID, String> classNames = classes.stream().collect(java.util.stream.Collectors.toMap(OntologyClass::getId, OntologyClass::getName));
+        List<OntologyTransferRequest.ClassTransfer> classTransfers = classes.stream().map(ontologyClass -> new OntologyTransferRequest.ClassTransfer(
+                ontologyClass.getName(), ontologyClass.getDescription(), propertyRepository.findAllByClassIdOrderByUpdatedAtDesc(ontologyClass.getId()).stream().map(property -> new OntologyTransferRequest.PropertyTransfer(property.getName(), property.getDescription(), property.getValueType(), property.isRequired())).toList())).toList();
+        List<OntologyTransferRequest.RelationTransfer> relationTransfers = relationRepository.findAllByOntologyIdOrderByUpdatedAtDesc(id).stream().map(relation -> new OntologyTransferRequest.RelationTransfer(
+                relation.getName(), relation.getDescription(), classNames.get(relation.getSourceClassId()), classNames.get(relation.getTargetClassId()), relation.getCardinality())).toList();
+        return new OntologyTransferRequest(ontology.getName(), ontology.getDescription(), classTransfers, relationTransfers);
+    }
+
+    @Transactional
+    public OntologyResponse importOntology(UUID projectId, OntologyTransferRequest request) {
+        requireProject(projectId);
+        Ontology ontology = ontologyRepository.saveAndFlush(Ontology.create(projectId, request.name().trim(), normalize(request.description())));
+        Map<String, UUID> classIds = new HashMap<>();
+        List<OntologyTransferRequest.ClassTransfer> classes = request.classes() == null ? List.<OntologyTransferRequest.ClassTransfer>of() : request.classes();
+        List<OntologyTransferRequest.RelationTransfer> relations = request.relations() == null ? List.<OntologyTransferRequest.RelationTransfer>of() : request.relations();
+        for (OntologyTransferRequest.ClassTransfer item : classes) {
+            OntologyClass ontologyClass = classRepository.save(OntologyClass.create(ontology.getId(), item.name().trim(), normalize(item.description())));
+            classIds.put(item.name().trim(), ontologyClass.getId());
+        }
+        classRepository.flush();
+        for (OntologyTransferRequest.ClassTransfer item : classes) {
+            UUID classId = classIds.get(item.name().trim());
+            List<OntologyTransferRequest.PropertyTransfer> properties = item.properties() == null ? List.<OntologyTransferRequest.PropertyTransfer>of() : item.properties();
+            for (OntologyTransferRequest.PropertyTransfer property : properties) {
+                propertyRepository.save(OntologyProperty.create(ontology.getId(), classId, property.name().trim(), normalize(property.description()), property.valueType(), property.required()));
+            }
+        }
+        for (OntologyTransferRequest.RelationTransfer relation : relations) {
+            UUID source = classIds.get(relation.sourceClass());
+            UUID target = classIds.get(relation.targetClass());
+            if (source != null && target != null) relationRepository.save(OntologyRelation.create(ontology.getId(), source, target, relation.name().trim(), normalize(relation.description()), relation.cardinality()));
+        }
+        return OntologyResponse.from(ontology);
+    }
+
     private void requireProject(UUID projectId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ProjectNotFoundException(projectId);

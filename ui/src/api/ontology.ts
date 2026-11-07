@@ -15,6 +15,8 @@ export interface OntologyValidationIssue { severity: 'ERROR' | 'WARNING'; code: 
 export interface OntologyValidation { valid: boolean; issues: OntologyValidationIssue[] }
 export interface OntologyLayoutPosition { x: number; y: number }
 export interface OntologyLayout { positions: Record<string, OntologyLayoutPosition> }
+export interface OntologyTransfer { name: string; description?: string | null; classes: Array<{ name: string; description?: string | null; properties: Array<{ name: string; description?: string | null; valueType: OntologyPropertyValueType; required: boolean }> }>; relations: Array<{ name: string; description?: string | null; sourceClass: string; targetClass: string; cardinality: OntologyRelationCardinality }> }
+export interface OntologyValidationJob { id: string; ontologyId: string; status: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED'; issues: OntologyValidationIssue[]; createdAt: string; finishedAt?: string | null }
 
 const apiOrigin = (import.meta.env.VITE_ENTLOOM_API_BASE_URL ?? '').replace(/\/$/, '')
 const endpoint = (projectId: string) => `${apiOrigin}/api/v1/projects/${projectId}/ontologies`
@@ -71,6 +73,22 @@ export async function getOntologyLayout(projectId: string, ontologyId: string, c
 
 export async function saveOntologyLayout(projectId: string, ontologyId: string, positions: Record<string, OntologyLayoutPosition>, credentials?: AuthCredentials) {
   return readJson<OntologyLayout>(await fetch(`${endpoint(projectId)}/${ontologyId}/layout`, { method: 'PATCH', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify({ positions }) }))
+}
+
+export async function exportOntology(projectId: string, ontologyId: string, credentials?: AuthCredentials) {
+  return readJson<OntologyTransfer>(await fetch(`${endpoint(projectId)}/${ontologyId}/export`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
+}
+
+export async function importOntology(projectId: string, transfer: OntologyTransfer, credentials?: AuthCredentials) {
+  return readJson<Ontology>(await fetch(`${endpoint(projectId)}/import`, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders(credentials) }, body: JSON.stringify(transfer) }))
+}
+
+export async function runOntologyValidationJob(projectId: string, ontologyId: string, credentials?: AuthCredentials) {
+  return readJson<OntologyValidationJob>(await fetch(`${endpoint(projectId)}/${ontologyId}/validation-jobs`, { method: 'POST', headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
+}
+
+export async function listOntologyValidationJobs(projectId: string, ontologyId: string, credentials?: AuthCredentials) {
+  return readJson<OntologyValidationJob[]>(await fetch(`${endpoint(projectId)}/${ontologyId}/validation-jobs`, { headers: { Accept: 'application/json', ...authHeaders(credentials) } }))
 }
 
 export async function deleteOntologyClass(projectId: string, ontologyId: string, classId: string, credentials?: AuthCredentials) { return deleteResource(`${endpoint(projectId)}/${ontologyId}/classes/${classId}`, credentials) }

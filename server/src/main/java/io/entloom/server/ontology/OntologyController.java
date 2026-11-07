@@ -87,4 +87,26 @@ public class OntologyController {
             @Valid @RequestBody UpdateOntologyLayoutRequest request) {
         return ontologyService.updateLayout(projectId, id, request);
     }
+
+    @PostMapping("/{id}/validation-jobs")
+    @ResponseStatus(HttpStatus.CREATED)
+    public OntologyValidationJobResponse runValidationJob(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return validationService.runJob(projectId, id);
+    }
+
+    @GetMapping("/{id}/validation-jobs")
+    public List<OntologyValidationJobResponse> listValidationJobs(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return validationService.listJobs(projectId, id);
+    }
+
+    @GetMapping("/{id}/export")
+    public OntologyTransferRequest export(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return ontologyService.export(projectId, id);
+    }
+
+    @PostMapping("/import")
+    @ResponseStatus(HttpStatus.CREATED)
+    public OntologyResponse importOntology(@PathVariable UUID projectId, @Valid @RequestBody OntologyTransferRequest request) {
+        return ontologyService.importOntology(projectId, request);
+    }
 }

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { changeOntologyStatus, compareOntologyReleases, createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, deleteOntologyClass, forkOntology, getOntologyLayout, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology, saveOntologyLayout, updateOntologyProperty, validateOntology } from './ontology'
+import { changeOntologyStatus, compareOntologyReleases, createOntology, createOntologyClass, createOntologyProperty, createOntologyRelation, deleteOntologyClass, exportOntology, forkOntology, getOntologyLayout, importOntology, listOntologyProperties, listOntologyReleases, listOntologyRelations, listOntologies, releaseOntology, runOntologyValidationJob, saveOntologyLayout, updateOntologyProperty, validateOntology } from './ontology'
 
 describe('ontology API client', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -67,5 +67,16 @@ describe('ontology API client', () => {
 
     await expect(getOntologyLayout('p-1', 'o-1')).resolves.toMatchObject({ positions: { 'c-1': { x: 120 } } })
     await expect(saveOntologyLayout('p-1', 'o-1', { 'c-1': { x: 120, y: 48 } })).resolves.toMatchObject({ positions: { 'c-1': { y: 48 } } })
+  })
+
+  it('exchanges transfer documents and validation jobs', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ name: 'Customer', classes: [], relations: [] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'o-2', status: 'DRAFT' }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'job-1', status: 'SUCCEEDED', issues: [] }), { status: 201 })))
+
+    await expect(exportOntology('p-1', 'o-1')).resolves.toMatchObject({ name: 'Customer' })
+    await expect(importOntology('p-1', { name: 'Imported', classes: [], relations: [] })).resolves.toMatchObject({ id: 'o-2' })
+    await expect(runOntologyValidationJob('p-1', 'o-1')).resolves.toMatchObject({ status: 'SUCCEEDED' })
   })
 })
